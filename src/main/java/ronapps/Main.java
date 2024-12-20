@@ -1,25 +1,26 @@
 package ronapps;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
+
 
 // Imports used for JSON
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-/* TODO: add a while loop so that the task tracker does not terminate after
-         accepting user input the first time around */
 
 /* TODO: find out how to save the tasks created by the user to the JSON file */
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String[] avaliableCommands = new String[] {"add",
+        String[] avaliableCommands = new String[] {
+                "add",
                 "update",
                 "delete",
                 "mark-in-progress",
@@ -35,52 +36,67 @@ public class Main {
         }
 
         // taking user input
-        System.out.println("Enter a command: ");
-        String userInput = scanner.nextLine();
-        String[] command = userInput.split(" ");
+        boolean running = true;
 
-        Pattern task = Pattern.compile("\"(.*)\"");
-        Matcher findInStr = task.matcher(userInput);
+        // Holds data
+        ArrayList<Data> dataObjs = new ArrayList<>();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        // creating the JSON file
-        File f = new File("Data.json");
+        while (running) {
+            //System.out.println("Enter a command: ");
+            String userInput = scanner.nextLine();
+            String[] command = userInput.split(" ");
 
+            Pattern task = Pattern.compile("\"(.*)\"");
+            Matcher findInStr = task.matcher(userInput);
 
-        switch (command[0]) {
-            case "add":
-                if (findInStr.find()) {
-                    try {
-                        add(findInStr.group(1), objectMapper, f);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            ObjectMapper objectMapper = new ObjectMapper();
+            // creating the JSON file
+            File f = new File("Data.json");
+
+            if (userInput.equals("exit")) {
+                running = false;
+            }
+
+            switch (command[0]) {
+                case "add":
+                    if (findInStr.find()) {
+                        try {
+                            add(findInStr.group(1), objectMapper, f, dataObjs);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
-                }
-                break;
-            case "update":
-                update();
-                break;
-            case "delete":
-                delete();
-                break;
-            case "mark-in-progress":
-                markInProgress();
-            case "mark-done":
-                markDone();
-            case "list":
-                list();
+                    break;
+                case "update":
+                    update();
+                    break;
+                case "delete":
+                    delete();
+                    break;
+                case "mark-in-progress":
+                    markInProgress();
+                case "mark-done":
+                    markDone();
+                case "list":
+                    list();
+            }
         }
     }
 
-    public static void add(String description, ObjectMapper objectMapper, File file) throws IOException{
+    public static void incrementID() {
+        System.out.println("Change the ID");
+    }
+    
+    public static void add(String description, ObjectMapper objectMapper, File file, ArrayList<Data> dataObjs) throws IOException{
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
 
         String currentTime = date + " " + time;
         int id = 1;
+
         Data data = new Data(id, description, currentTime);
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, data);
-        id += 1;
+        dataObjs.add(data);
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, dataObjs);
     }
 
     public static void update() {

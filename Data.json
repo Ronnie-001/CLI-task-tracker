@@ -1,7 +1,13 @@
-{
+[ {
   "id" : 1,
-  "description" : "Buy water",
+  "description" : "Buy groceries",
   "status" : "todo",
   "updatedAt" : null,
-  "timeCreated" : "2024-12-19 22:15:06.769283174"
-}
+  "timeCreated" : "2024-12-20 19:11:23.373929990"
+}, {
+  "id" : 1,
+  "description" : "Buy milk",
+  "status" : "todo",
+  "updatedAt" : null,
+  "timeCreated" : "2024-12-20 19:11:27.236365310"
+} ]
