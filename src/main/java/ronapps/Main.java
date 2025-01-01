@@ -1,7 +1,6 @@
 package ronapps;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,11 +9,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
 
-
 // Imports used for JSON
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-/* TODO: find out how to save the tasks created by the user to the JSON file */
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Main {
     public static void main(String[] args) {
@@ -46,8 +45,13 @@ public class Main {
             String userInput = scanner.nextLine();
             String[] command = userInput.split(" ");
 
+            // regex matching for the user wanting to add a task
             Pattern task = Pattern.compile("\"(.*)\"");
-            Matcher findInStr = task.matcher(userInput);
+            Matcher taskMatcher = task.matcher(userInput);
+
+            // regex matching to find all
+            Pattern updateTask = Pattern.compile("\\b(\\d+)\\b");
+            Matcher updateTaskMatcher = updateTask.matcher(userInput);
 
             ObjectMapper objectMapper = new ObjectMapper();
             // creating the JSON file
@@ -59,16 +63,18 @@ public class Main {
 
             switch (command[0]) {
                 case "add":
-                    if (findInStr.find()) {
+                    if (taskMatcher.find()) {
                         try {
-                            add(findInStr.group(1), objectMapper, f, dataObjs);
+                            add(taskMatcher.group(1), objectMapper, f, dataObjs);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
                     break;
                 case "update":
-                    update();
+                    if (updateTaskMatcher.find() && taskMatcher.find()) {
+                        update((updateTaskMatcher.group()), taskMatcher.group(1), dataObjs);
+                    }
                     break;
                 case "delete":
                     delete();
@@ -78,29 +84,44 @@ public class Main {
                 case "mark-done":
                     markDone();
                 case "list":
-                    list();
+                    list(dataObjs);
             }
         }
     }
 
-    public static void incrementID() {
-        System.out.println("Change the ID");
-    }
-    
     public static void add(String description, ObjectMapper objectMapper, File file, ArrayList<Data> dataObjs) throws IOException{
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
 
         String currentTime = date + " " + time;
-        int id = 1;
 
-        Data data = new Data(id, description, currentTime);
+        int nextID = dataObjs.stream().map(Data::getID).max(Integer::compareTo).orElse(0) + 1;
+
+        // creating a new task
+        Data data = new Data(nextID, description, currentTime);
         dataObjs.add(data);
+
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, dataObjs);
     }
 
-    public static void update() {
+    public static void update(String taskID, String newDescription, ArrayList<Data> dataObjs) {
         System.out.println("Updated a task");
+        int ID = Integer.valueOf(taskID.trim());
+        System.out.println(ID);
+        dataObjs.get(ID).setDescription(newDescription);
+
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+
+        String updatedTime = date + " " + time;
+        dataObjs.get(ID).setUpdateTime(updatedTime);
+    }
+
+    public static void list(ArrayList<Data> dataObjs) {
+        System.out.println("------------ALL TASKS------------");
+        for (int i = 0; i < dataObjs.size(); i++) {
+            System.out.println(dataObjs.get(i).getDescription());
+        }
     }
 
     public static void delete() {
@@ -113,9 +134,5 @@ public class Main {
 
     public static void markDone() {
         System.out.println("Marked task as done");
-    }
-
-    public static void list() {
-        System.out.println("Listed task");
     }
 }
