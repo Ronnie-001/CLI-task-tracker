@@ -1,10 +1,8 @@
 package ronapps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.ArrayList;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Data {
 
     private int id;
@@ -13,18 +11,15 @@ public class Data {
     private String createdAt;
     private String updatedAt;
 
-    private ObjectMapper objectMapper;
-    private ArrayList<Data> dataObjs;
-
 
     public Data(int id ,String description, String createdAt) {
         this.id = id;
         this.description = description;
         this.status = "todo";
         this.createdAt = createdAt;
-        this.objectMapper = new ObjectMapper();
-        this.dataObjs = new ArrayList<>();
     }
+
+    public Data () {};
 
     public int getID() {
         return this.id;

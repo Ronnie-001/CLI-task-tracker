@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,12 +12,11 @@ import java.util.ArrayList;
 
 // Imports used for JSON
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
         String[] avaliableCommands = new String[] {
                 "add",
@@ -37,9 +37,25 @@ public class Main {
         // taking user input
         boolean running = true;
 
+        ObjectMapper objectMapper = new ObjectMapper();
+
         // Holds data
         ArrayList<Data> dataObjs = new ArrayList<>();
+        // creating the JSON file
+        File f = new File("Data.json");
 
+        // check if the JSON file was empty first, if so then add the existing tasks
+        if (!(f.length() == 0)) {
+            try {
+                List<Data> tempList = objectMapper.readValue(f, new TypeReference<List<Data>>() {});
+                for (int i = 0; i < tempList.size(); i++) {
+                    dataObjs.add(tempList.get(i));
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        
         while (running) {
             //System.out.println("Enter a command: ");
             String userInput = scanner.nextLine();
@@ -53,9 +69,6 @@ public class Main {
             Pattern updateTask = Pattern.compile("\\b(\\d+)\\b");
             Matcher updateTaskMatcher = updateTask.matcher(userInput);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            // creating the JSON file
-            File f = new File("Data.json");
 
             if (userInput.equals("exit")) {
                 running = false;
@@ -73,7 +86,7 @@ public class Main {
                     break;
                 case "update":
                     if (updateTaskMatcher.find() && taskMatcher.find()) {
-                        update((updateTaskMatcher.group()), taskMatcher.group(1), dataObjs);
+                        update((updateTaskMatcher.group()), taskMatcher.group(1), objectMapper, f, dataObjs);
                     }
                     break;
                 case "delete":
@@ -96,18 +109,15 @@ public class Main {
         String currentTime = date + " " + time;
 
         int nextID = dataObjs.stream().map(Data::getID).max(Integer::compareTo).orElse(0) + 1;
-
         // creating a new task
         Data data = new Data(nextID, description, currentTime);
         dataObjs.add(data);
-
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, dataObjs);
+        savingData(objectMapper, file, dataObjs);
     }
 
-    public static void update(String taskID, String newDescription, ArrayList<Data> dataObjs) {
+    public static void update(String taskID, String newDescription, ObjectMapper objectMapper, File file, ArrayList<Data> dataObjs) throws IOException {
         System.out.println("Updated a task");
-        int ID = Integer.valueOf(taskID.trim());
-        System.out.println(ID);
+        int ID = Integer.valueOf(taskID.trim()) - 1;
         dataObjs.get(ID).setDescription(newDescription);
 
         LocalDate date = LocalDate.now();
@@ -115,12 +125,13 @@ public class Main {
 
         String updatedTime = date + " " + time;
         dataObjs.get(ID).setUpdateTime(updatedTime);
+        savingData(objectMapper, file, dataObjs);
     }
 
     public static void list(ArrayList<Data> dataObjs) {
         System.out.println("------------ALL TASKS------------");
         for (int i = 0; i < dataObjs.size(); i++) {
-            System.out.println(dataObjs.get(i).getDescription());
+            System.out.println("ID: " + dataObjs.get(i).getID() + " Description: " + dataObjs.get(i).getDescription());
         }
     }
 
@@ -134,5 +145,9 @@ public class Main {
 
     public static void markDone() {
         System.out.println("Marked task as done");
+    }
+
+    public static void savingData(ObjectMapper objectMapper, File file, ArrayList<Data> dataObjs) throws IOException {
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, dataObjs);
     }
 }
