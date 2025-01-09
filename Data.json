@@ -1,13 +1,1 @@
-[ {
-  "id" : 2,
-  "description" : "buy some fanta",
-  "status" : "todo",
-  "updatedAt" : "2025-01-09 13:38:34.634076549",
-  "timeCreated" : null
-}, {
-  "id" : 3,
-  "description" : "buy clothes",
-  "status" : "todo",
-  "updatedAt" : null,
-  "timeCreated" : null
-} ]
+[ ]

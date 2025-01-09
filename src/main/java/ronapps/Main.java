@@ -141,8 +141,18 @@ public class Main {
     }
 
     public static void delete(String taskID, ArrayList<Data> dataObjs, ObjectMapper objectMapper, File file) throws IOException {
-        int ID = Integer.valueOf(taskID.trim()) - 1;
-        dataObjs.remove(dataObjs.get(ID));
+        int ID = Integer.valueOf(taskID.trim());
+
+        for (int i = 0; i < dataObjs.size(); i++) {
+            if (dataObjs.get(i).getID() == ID) {
+                dataObjs.remove(dataObjs.get(i));
+            }
+        }
+
+        for (int i = 0; i < dataObjs.size() - ID; i++) {
+            dataObjs.get(i).setID(dataObjs.get(i).getID() - 1);
+        }
+
         savingData(objectMapper, file, dataObjs);
     }
 
