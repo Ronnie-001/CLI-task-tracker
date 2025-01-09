@@ -34,17 +34,16 @@ public class Main {
             System.out.println("available commands to use: " + avaliableCommands[i]);
         }
 
-        // taking user input
         boolean running = true;
-
         ObjectMapper objectMapper = new ObjectMapper();
 
         // Holds data
         ArrayList<Data> dataObjs = new ArrayList<>();
+
         // creating the JSON file
         File f = new File("Data.json");
 
-        // check if the JSON file was empty first, if so then add the existing tasks
+        // check if the JSON file was empty first, if it isn't empty then add the existing tasks
         if (!(f.length() == 0)) {
             try {
                 List<Data> tempList = objectMapper.readValue(f, new TypeReference<List<Data>>() {});
@@ -55,7 +54,7 @@ public class Main {
                 e.printStackTrace();
             }
         }
-        
+
         while (running) {
             //System.out.println("Enter a command: ");
             String userInput = scanner.nextLine();
@@ -66,8 +65,8 @@ public class Main {
             Matcher taskMatcher = task.matcher(userInput);
 
             // regex matching to find all
-            Pattern updateTask = Pattern.compile("\\b(\\d+)\\b");
-            Matcher updateTaskMatcher = updateTask.matcher(userInput);
+            Pattern taskID = Pattern.compile("\\b(\\d+)\\b");
+            Matcher idMatcher = taskID.matcher(userInput);
 
 
             if (userInput.equals("exit")) {
@@ -85,12 +84,18 @@ public class Main {
                     }
                     break;
                 case "update":
-                    if (updateTaskMatcher.find() && taskMatcher.find()) {
-                        update((updateTaskMatcher.group()), taskMatcher.group(1), objectMapper, f, dataObjs);
+                    if (idMatcher.find() && taskMatcher.find()) {
+                        update((idMatcher.group()), taskMatcher.group(1), objectMapper, f, dataObjs);
                     }
                     break;
                 case "delete":
-                    delete();
+                    try {
+                        if (idMatcher.find()) {
+                            delete((idMatcher.group()), dataObjs, objectMapper, f);
+                        }
+                    } catch (IOException e) {
+                        System.out.println("The ID was not found");
+                    }
                     break;
                 case "mark-in-progress":
                     markInProgress();
@@ -135,8 +140,10 @@ public class Main {
         }
     }
 
-    public static void delete() {
-        System.out.println("Deleted a task");
+    public static void delete(String taskID, ArrayList<Data> dataObjs, ObjectMapper objectMapper, File file) throws IOException {
+        int ID = Integer.valueOf(taskID.trim()) - 1;
+        dataObjs.remove(dataObjs.get(ID));
+        savingData(objectMapper, file, dataObjs);
     }
 
     public static void markInProgress() {

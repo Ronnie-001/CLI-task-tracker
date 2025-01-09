@@ -1,19 +1,13 @@
 [ {
-  "id" : 1,
-  "description" : "buy a laptop",
-  "status" : "todo",
-  "updatedAt" : "2025-01-08 16:47:44.542823223",
-  "timeCreated" : "2025-01-08 16:47:17.620185185"
-}, {
   "id" : 2,
-  "description" : "buy water",
+  "description" : "buy some fanta",
   "status" : "todo",
-  "updatedAt" : null,
-  "timeCreated" : "2025-01-08 16:47:21.725066168"
+  "updatedAt" : "2025-01-09 13:38:34.634076549",
+  "timeCreated" : null
 }, {
   "id" : 3,
   "description" : "buy clothes",
   "status" : "todo",
   "updatedAt" : null,
-  "timeCreated" : "2025-01-08 16:47:28.172620262"
+  "timeCreated" : null
 } ]
