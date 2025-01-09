@@ -1,13 +1,19 @@
 [ {
   "id" : 1,
-  "description" : "buy food",
-  "status" : "todo",
+  "description" : "buy groceries",
+  "status" : "Done",
   "updatedAt" : null,
   "timeCreated" : null
 }, {
   "id" : 2,
-  "description" : "buy water",
+  "description" : "buy clothes",
   "status" : "todo",
   "updatedAt" : null,
-  "timeCreated" : "2025-01-09 20:00:07.502813017"
+  "timeCreated" : null
+}, {
+  "id" : 3,
+  "description" : "book hotel",
+  "status" : "In progress",
+  "updatedAt" : null,
+  "timeCreated" : null
 } ]

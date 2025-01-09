@@ -102,12 +102,23 @@ public class Main {
                     if (idMatcher.find()) {
                         markInProgress(idMatcher.group(), dataObjs, objectMapper, f);
                     }
+                    break;
                 case "mark-done":
                     if (idMatcher.find()) {
                         markDone(idMatcher.group(), dataObjs, objectMapper, f);
                     }
+                    break;
                 case "list":
                     list(dataObjs);
+                    break;
+                case "list-done":
+                    listDone(dataObjs, f, objectMapper);
+                    break;
+                case "list-todo":
+                    listTodo(dataObjs, f, objectMapper);
+                    break;
+                case "list-in-progress":
+                    listInProgress(dataObjs, f, objectMapper);
                     break;
             }
         }
@@ -164,14 +175,44 @@ public class Main {
     }
 
     public static void markInProgress(String taskID, ArrayList<Data> dataObjs, ObjectMapper objectMapper, File file) throws IOException {
-        int ID = Integer.valueOf(taskID);
+        int ID = Integer.valueOf(taskID) - 1;
         dataObjs.get(ID).setStatus("In progress");
         savingData(objectMapper, file, dataObjs);
     }
 
     public static void markDone(String taskID, ArrayList<Data> dataObjs, ObjectMapper objectMapper, File file) throws IOException {
-        int ID = Integer.valueOf(taskID);
+        int ID = Integer.valueOf(taskID) - 1;
         dataObjs.get(ID).setStatus("Done");
+        savingData(objectMapper, file, dataObjs);
+    }
+
+    public static void listDone(ArrayList<Data> dataObjs, File file, ObjectMapper objectMapper) throws IOException {
+        System.out.println("------------COMPLETED TASKS------------");
+        for (int i = 0; i < dataObjs.size(); i++) {
+            if (dataObjs.get(i).getStatus().equals("Done")) {
+                System.out.println("ID: " + dataObjs.get(i).getID() + " Description: " + dataObjs.get(i).getDescription());
+            }
+        }
+        savingData(objectMapper, file, dataObjs);
+    }
+
+    public static void listTodo(ArrayList<Data> dataObjs, File file, ObjectMapper objectMapper) throws IOException {
+        System.out.println("------------TASKS TO COMPLETE------------");
+        for (int i = 0; i < dataObjs.size(); i++) {
+            if (dataObjs.get(i).getStatus().equals("todo")) {
+                System.out.println("ID: " + dataObjs.get(i).getID() + " Description: " + dataObjs.get(i).getDescription());
+            }
+        }
+        savingData(objectMapper, file, dataObjs);
+    }
+
+    public static void listInProgress(ArrayList<Data> dataObjs, File file, ObjectMapper objectMapper) throws IOException {
+        System.out.println("------------ALL TASKS IN PROGRESS------------");
+        for (int i = 0; i < dataObjs.size(); i++) {
+            if (dataObjs.get(i).getStatus().equals("In progress")) {
+                System.out.println("ID: " + dataObjs.get(i).getID() + " Description: " + dataObjs.get(i).getDescription());
+            }
+        }
         savingData(objectMapper, file, dataObjs);
     }
 
