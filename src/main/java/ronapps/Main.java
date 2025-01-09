@@ -149,8 +149,10 @@ public class Main {
             }
         }
 
-        for (int i = 0; i < dataObjs.size() - ID; i++) {
-            dataObjs.get(i).setID(dataObjs.get(i).getID() - 1);
+        for (int i = 0; i < dataObjs.size(); i++) {
+            if (dataObjs.get(i).getID() > ID) {
+                dataObjs.get(i).setID(dataObjs.get(i).getID() - 1);
+            }
         }
 
         savingData(objectMapper, file, dataObjs);
