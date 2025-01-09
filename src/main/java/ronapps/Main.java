@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 public class Main {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -85,24 +86,29 @@ public class Main {
                     break;
                 case "update":
                     if (idMatcher.find() && taskMatcher.find()) {
-                        update((idMatcher.group()), taskMatcher.group(1), objectMapper, f, dataObjs);
+                        update(idMatcher.group(), taskMatcher.group(1), objectMapper, f, dataObjs);
                     }
                     break;
                 case "delete":
                     try {
                         if (idMatcher.find()) {
-                            delete((idMatcher.group()), dataObjs, objectMapper, f);
+                            delete(idMatcher.group(), dataObjs, objectMapper, f);
                         }
                     } catch (IOException e) {
                         System.out.println("The ID was not found");
                     }
                     break;
                 case "mark-in-progress":
-                    markInProgress();
+                    if (idMatcher.find()) {
+                        markInProgress(idMatcher.group(), dataObjs, objectMapper, f);
+                    }
                 case "mark-done":
-                    markDone();
+                    if (idMatcher.find()) {
+                        markDone(idMatcher.group(), dataObjs, objectMapper, f);
+                    }
                 case "list":
                     list(dataObjs);
+                    break;
             }
         }
     }
@@ -154,16 +160,19 @@ public class Main {
                 dataObjs.get(i).setID(dataObjs.get(i).getID() - 1);
             }
         }
-
         savingData(objectMapper, file, dataObjs);
     }
 
-    public static void markInProgress() {
-        System.out.println("Marked task as in progress");
+    public static void markInProgress(String taskID, ArrayList<Data> dataObjs, ObjectMapper objectMapper, File file) throws IOException {
+        int ID = Integer.valueOf(taskID);
+        dataObjs.get(ID).setStatus("In progress");
+        savingData(objectMapper, file, dataObjs);
     }
 
-    public static void markDone() {
-        System.out.println("Marked task as done");
+    public static void markDone(String taskID, ArrayList<Data> dataObjs, ObjectMapper objectMapper, File file) throws IOException {
+        int ID = Integer.valueOf(taskID);
+        dataObjs.get(ID).setStatus("Done");
+        savingData(objectMapper, file, dataObjs);
     }
 
     public static void savingData(ObjectMapper objectMapper, File file, ArrayList<Data> dataObjs) throws IOException {
